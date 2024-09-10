@@ -1,6 +1,4 @@
-Here is the document formatted in Markdown for GitHub:
 
-```markdown
 # Setting Up ESP8266 to Control a Motor with Captive Portal
 
 ## Objective
