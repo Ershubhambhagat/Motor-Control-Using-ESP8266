@@ -1,11 +1,9 @@
 #include <ESP8266WiFi.h>       // Wi-Fi functionality
 #include <ESP8266WebServer.h>  // HTTP server functionality
-#include <DNSServer.h>         // DNS server functionality
 
-const int motorPin = D1;  // Motor control pin
+const int motorPin = 5;  // Motor control pin
 
 ESP8266WebServer server(80);  // Web server on port 80
-DNSServer dnsServer;         // DNS server
 
 const char* ssid = "ESP8266_WaterControl";  // Wi-Fi SSID
 const char* password = "12345678";          // Wi-Fi password
@@ -30,6 +28,8 @@ const char index_html[] PROGMEM = R"rawliteral(
 <body>
     <div id="control-panel">
         <h1>Water Tank Motor Control</h1>
+        <button id="btn-5sec" onclick="startTimer(0.0833)">Run for 5 seconds</button>
+        <button id="btn-10sec" onclick="startTimer(0.1667)">Run for 10 seconds</button>
         <button id="btn-5min" onclick="startTimer(5)">Run for 5 minutes</button>
         <button id="btn-10min" onclick="startTimer(10)">Run for 10 minutes</button>
         <button id="btn-15min" onclick="startTimer(15)">Run for 15 minutes</button>
@@ -57,7 +57,10 @@ const char index_html[] PROGMEM = R"rawliteral(
         let loggedIn = false;
 
         function startTimer(minutes) {
-            let totalSeconds = minutes * 60;
+            let xhr = new XMLHttpRequest();
+            xhr.open("GET", "/control?duration=" + (minutes * 60), true);
+            xhr.send();
+            let totalSeconds = Math.floor(minutes * 60);
             disableButtons();
             countdown = setInterval(function() {
                 if (totalSeconds <= 0) {
@@ -103,21 +106,43 @@ const char index_html[] PROGMEM = R"rawliteral(
             } else {
                 alert("Invalid credentials");
             }
-            return false;
+            return false;  // Prevent form submission
         }
     </script>
 </body>
 </html>
 )rawliteral";
 
+unsigned long motorStartTime = 0;
+int motorDuration = 0;
+bool motorRunning = false;
+
 void handleRoot() {
-  server.send_P(200, "text/html", index_html);
+  server.send_P(200, "text/html", index_html);  // Serve the HTML page
 }
 
 void controlMotor(int duration) {
+  motorStartTime = millis();
+  motorDuration = duration * 1000;  // Convert to milliseconds
+  motorRunning = true;
   digitalWrite(motorPin, HIGH);  // Turn motor ON
-  delay(duration * 1000);        // Run motor for specified duration
-  digitalWrite(motorPin, LOW);   // Turn motor OFF
+}
+
+void checkMotorStatus() {
+  if (motorRunning && (millis() - motorStartTime >= motorDuration)) {
+    digitalWrite(motorPin, LOW);  // Turn motor OFF
+    motorRunning = false;
+  }
+}
+
+void handleMotorControl() {
+  if (server.hasArg("duration")) {
+    int duration = server.arg("duration").toInt();
+    controlMotor(duration);
+    server.send(200, "text/plain", "Motor running for " + String(duration) + " seconds.");
+  } else {
+    server.send(400, "text/plain", "Invalid request");
+  }
 }
 
 void setup() {
@@ -129,13 +154,12 @@ void setup() {
   Serial.println("Access Point started. IP address: ");
   Serial.println(WiFi.softAPIP());  // Print IP address
 
-  dnsServer.start(53, "*", WiFi.softAPIP());  // Start DNS server
-
   server.on("/", handleRoot);  // Handle root URL requests
+  server.on("/control", handleMotorControl);  // Handle motor control requests
   server.begin();  // Start HTTP server
 }
 
 void loop() {
-  server.handleClient();        // Handle HTTP requests
-  dnsServer.processNextRequest(); // Handle DNS requests
+  server.handleClient();  // Handle HTTP requests
+  checkMotorStatus();     // Check motor status and turn off if needed
 }
