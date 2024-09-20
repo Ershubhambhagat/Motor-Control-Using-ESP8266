@@ -1,5 +1,6 @@
 #include <ESP8266WiFi.h>       // Wi-Fi functionality
 #include <ESP8266WebServer.h>  // HTTP server functionality
+#include <ESP8266mDNS.h>       // mDNS functionality
 
 const int motorPin = 5;  // Motor control pin
 
@@ -7,6 +8,7 @@ ESP8266WebServer server(80);  // Web server on port 80
 
 const char* ssid = "ESP8266_WaterControl";  // Wi-Fi SSID
 const char* password = "12345678";          // Wi-Fi password
+const char* hostname = "ErShubham";           // mDNS hostname (e.g., shubham.local)
 
 const char index_html[] PROGMEM = R"rawliteral(
 
@@ -276,6 +278,13 @@ void setup() {
   Serial.println("Access Point started. IP address: ");
   Serial.println(WiFi.softAPIP());  // Print IP address
 
+  // Start the mDNS responder for shubham.local
+  if (!MDNS.begin(hostname)) {
+    Serial.println("Error setting up MDNS responder!");
+  } else {
+    Serial.println("mDNS responder started. You can access the page at http://ErShubham.local");
+  }
+
   server.on("/", handleRoot);  // Handle root URL requests
   server.on("/control", handleMotorControl);  // Handle motor control requests
   server.on("/stop", handleMotorStop);  // Handle motor stop requests (SOS)
@@ -284,6 +293,7 @@ void setup() {
 
 void loop() {
   server.handleClient();  // Handle HTTP requests
+  MDNS.update();  // Keep mDNS running
   checkMotorStatus();     // Check motor status and turn off if needed
 
   // Immediately stop motor if SOS button was pressed

@@ -24,18 +24,37 @@
         }
 
         @keyframes colorChange {
-    0% { color: rgb(233, 5, 5); }
-    25% { color: rgb(0, 128, 0); } /* Green */
-    50% { color: rgb(0, 0, 255); } /* Blue */
-    75% { color: rgb(255, 165, 0); } /* Orange */
-    100% { color: rgb(233, 5, 5); } /* Red */
-}
+            0% {
+                color: rgb(233, 5, 5);
+            }
 
-#timer-display {
-    font-size: 24px;
-    margin-top: 20px;
-    animation: colorChange 4s infinite;
-}
+            25% {
+                color: rgb(0, 128, 0);
+            }
+
+            /* Green */
+            50% {
+                color: rgb(0, 0, 255);
+            }
+
+            /* Blue */
+            75% {
+                color: rgb(255, 165, 0);
+            }
+
+            /* Orange */
+            100% {
+                color: rgb(233, 5, 5);
+            }
+
+            /* Red */
+        }
+
+        #timer-display {
+            font-size: 24px;
+            margin-top: 20px;
+            animation: colorChange 4s infinite;
+        }
 
 
         #login-section {
@@ -66,74 +85,141 @@
             border-radius: 17px;
             box-shadow: -17px -25px -16px rgba(141, 229, 0, 0.7);
         }
-            .stop-btn:hover {
-                background-color: rgb(249, 5, 5);
+
+        .stop-btn:hover {
+            background-color: rgb(249, 5, 5);
+        }
+
+        .mainbtn {
+            border: none;
+            padding: 0.8em 2.5em;
+            outline: none;
+            color: white;
+            font-style: 1.2em;
+            position: relative;
+            z-index: 1;
+            cursor: pointer;
+            background: none;
+            text-shadow: 3px 3px 10px rgba(0, 0, 0, 0.45);
+        }
+
+        .mainbtn:before,
+        .mainbtn:after {
+            position: absolute;
+
+
+            top: 50%;
+            left: 50%;
+            border-radius: 10em;
+            -webkit-transform: translateX(-50%) translateY(-50%);
+            transform: translateX(-50%) translateY(-50%);
+            width: 105%;
+            height: 105%;
+
+            content: "";
+            z-index: -2;
+            background-size: 400% 400%;
+            background: linear-gradient(60deg,
+                    #f79533,
+                    #f37055,
+                    #ef4e7b,
+                    #a166ab,
+                    #5073b8,
+                    #1098ad,
+                    #07b39b,
+                    #6fba82);
+        }
+
+        .mainbtn:before {
+            -webkit-filter: blur(7px);
+            filter: blur(7px);
+            -webkit-transition: all 0.25s ease;
+            transition: all 0.25s ease;
+            -webkit-animation: pulse 10s infinite ease;
+            animation: pulse 10s infinite ease;
+        }
+
+        .mainbtn:after {
+            -webkit-filter: blur(0.3px);
+            filter: blur(0.3px);
+        }
+
+        .mainbtn:hover:before {
+            width: 115%;
+            height: 115%;
+        }
+        /* /* Whatapp Css  */
+
+        .whatsapp-float {
+
+
+            animation: fadeInUp 0.5s ease-in-out 0s both;
+        }
+
+
+       
+
+        @keyframes fadeInUp {
+            0% {
+                opacity: 0;
+                transform: translate3d(0, 20px, 0);
             }
 
-            .mainbtn {
-                border: none;
-                padding: 0.8em 2.5em;
-                outline: none;
-                color: white;
-                font-style: 1.2em;
-                position: relative;
-                z-index: 1;
-                cursor: pointer;
-                background: none;
-                text-shadow: 3px 3px 10px rgba(0, 0, 0, 0.45);
+            100% {
+                opacity: 1;
+                transform: translate3d(0, 0, 0);
             }
-
-            .mainbtn:before,
-            .mainbtn:after {
-                position: absolute;
+        }
 
 
-                top: 50%;
-                left: 50%;
-                border-radius: 10em;
-                -webkit-transform: translateX(-50%) translateY(-50%);
-                transform: translateX(-50%) translateY(-50%);
-                width: 105%;
-                height: 105%;
 
-                content: "";
-                z-index: -2;
-                background-size: 400% 400%;
-                background: linear-gradient(60deg,
-                        #f79533,
-                        #f37055,
-                        #ef4e7b,
-                        #a166ab,
-                        #5073b8,
-                        #1098ad,
-                        #07b39b,
-                        #6fba82);
-            }
 
-            .mainbtn:before {
-                -webkit-filter: blur(7px);
-                filter: blur(7px);
-                -webkit-transition: all 0.25s ease;
-                transition: all 0.25s ease;
-                -webkit-animation: pulse 10s infinite ease;
-                animation: pulse 10s infinite ease;
-            }
+        .whatsapp-button {
+            background-color: #25D366;
+    color: #fff;
+    position: fixed;
+    top: 30%;
+    right: 69%;
+    text-align: -webkit-center;
+    transform: translateY(-50%) rotate(-90deg);
+    padding: 0px 62px;
+    font-size: 10px;
+    cursor: pointer;
+    border: dotted;
+    border-radius: 17px;
 
-            .mainbtn:after {
-                -webkit-filter: blur(0.3px);
-                filter: blur(0.3px);
-            }
+        }
+        .whatsapp-icon svg {
+            fill: #fff;
+            width: 20px;
+            height: 20px;
+        }
 
-            .mainbtn:hover:before {
-                width: 115%;
-                height: 115%;
-            }
+        .whatsapp-button svg {
+            fill: #fff;
+            width: 16px;
+            height: 16px;
+            margin-right: 8px;
+        
+        }
+
+        /* Whatapp Css */
     </style>
 </head>
 
 <body>
     <button class="stop-btn" onclick="stopMotor()">STOP MOTOR</button>
-
+    <a href="https://api.whatsapp.com/send?phone=1234567890&text=Hi,%20I%20am%20interested%20in%20your%20product"
+        target="_blank" class="whatsapp-float">
+        <button class="whatsapp-button">
+            <svg viewBox="0 0 64 64">
+                <path
+                    d="M6.9,48.4c-0.4,1.5-0.8,3.3-1.3,5.2c-0.7,2.9,1.9,5.6,4.8,4.8l5.1-1.3c1.7-0.4,3.5-0.2,5.1,0.5 c4.7,2.1,10,3,15.6,2.1c12.3-1.9,22-11.9,23.5-24.2C62,17.3,46.7,2,28.5,4.2C16.2,5.7,6.2,15.5,4.3,27.8c-0.8,5.6,0,10.9,2.1,15.6 C7.1,44.9,7.3,46.7,6.9,48.4z M21.3,19.8c0.6-0.5,1.4-0.9,1.8-0.9s2.3-0.2,2.9,1.2c0.6,1.4,2,4.7,2.1,5.1c0.2,0.3,0.3,0.7,0.1,1.2 c-0.2,0.5-0.3,0.7-0.7,1.1c-0.3,0.4-0.7,0.9-1,1.2c-0.3,0.3-0.7,0.7-0.3,1.4c0.4,0.7,1.8,2.9,3.8,4.7c2.6,2.3,4.9,3,5.5,3.4 c0.7,0.3,1.1,0.3,1.5-0.2c0.4-0.5,1.7-2,2.2-2.7c0.5-0.7,0.9-0.6,1.6-0.3c0.6,0.2,4,1.9,4.7,2.2c0.7,0.3,1.1,0.5,1.3,0.8 c0.2,0.3,0.2,1.7-0.4,3.2c-0.6,1.6-2.1,3.1-3.2,3.5c-1.3,0.5-2.8,0.7-9.3-1.9c-7-2.8-11.8-9.8-12.1-10.3c-0.3-0.5-2.8-3.7-2.8-7.1 C18.9,22.1,20.7,20.4,21.3,19.8z">
+                </path>
+            </svg>
+            Chat on WhatsApp
+        </button>
+    </a>
     <div id="control-panel">
         <h1>Water Tank Motor Control</h1>
         <button class="mainbtn" id="btn-1sec" onclick="startTimer(0.0167)">Run for 1 second</button>
@@ -146,6 +232,8 @@
 
         <div id="timer-display"></div>
     </div>
+
+
 
     <div id="login-section">
         <h2>Authorized Access Only</h2>
