@@ -32,3 +32,5 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - Thanks to the Arduino and ESP8266 communities for their support and documentation.
 
 Feel free to modify and use this project as needed. If you have any questions or issues, please open an issue on this repository.
+
+>http://192.168.4.1/control?duration=5

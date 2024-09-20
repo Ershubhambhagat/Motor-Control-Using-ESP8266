@@ -167,15 +167,14 @@ const char index_html[] PROGMEM = R"rawliteral(
             <input type="password" id="password" placeholder="Code" required>
             <button class="mainbtn" type="submit">Submit</button>
         </form>
-        <div id="custom-time">
+        <div id="custom-time" style="display: none;"> <!-- Hide initially -->
             <label for="customTime">Enter time (minutes):</label>
             <input type="number" id="customTime" min="1" max="30">
             <button class="mainbtn" onclick="startCustomTimer()">Run Custom Time</button>
         </div>
-    </div>
 
     <script>
-        let countdown;
+          let countdown;
         let loggedIn = false;
 
         function startTimer(minutes) {
@@ -208,16 +207,26 @@ const char index_html[] PROGMEM = R"rawliteral(
             document.getElementById("timer-display").innerHTML = "Motor stopped immediately!";
         }
 
+        // Custom time handling
+        function startCustomTimer() {
+            const customTime = document.getElementById("customTime").value;
+            if (customTime && customTime > 0) {
+                startTimer(customTime); // Call the startTimer function with custom time (in minutes)
+            } else {
+                alert("Please enter a valid time (in minutes).");
+            }
+        }
+
         function handleLogin() {
             const password = document.getElementById("password").value;
             if (password === "4888") {
                 loggedIn = true;
-                document.getElementById('custom-time').style.display = "block";
+                document.getElementById('custom-time').style.display = "block"; // Show custom time input
                 alert("Login successful!");
             } else {
                 alert("Invalid credentials");
             }
-            return false;  // Prevent form submission
+            return false; // Prevent form submission
         }
     </script>
 </body>
