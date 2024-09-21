@@ -1,14 +1,16 @@
 #include <ESP8266WiFi.h>       // Wi-Fi functionality
 #include <ESP8266WebServer.h>  // HTTP server functionality
 #include <ESP8266mDNS.h>       // mDNS functionality
+#include <DNSServer.h>         // DNS server for captive portal
 
 const int motorPin = 5;  // Motor control pin
-
 ESP8266WebServer server(80);  // Web server on port 80
+DNSServer dnsServer;          // DNS server for captive portal
+const byte DNS_PORT = 53;     // DNS port number
 
 const char* ssid = "ESP8266_WaterControl";  // Wi-Fi SSID
 const char* password = "12345678";          // Wi-Fi password
-const char* hostname = "ErShubham";           // mDNS hostname (e.g., shubham.local)
+const char* hostname = "ErShubham";      // mDNS hostname (e.g., shubham.local)
 
 const char index_html[] PROGMEM = R"rawliteral(
 
@@ -240,7 +242,19 @@ bool motorRunning = false;
 bool sosPressed = false;
 
 void handleRoot() {
+  // Serve the main page
   server.send_P(200, "text/html", index_html);  // Serve the HTML page
+}
+
+void handleCaptivePortal() {
+  // Redirect to the main page for captive portal clients
+  server.sendHeader("Location", String("http://") + WiFi.softAPIP().toString(), true);
+  server.send(302, "text/html", "");  // Redirect client
+}
+
+bool isCaptivePortalRequest() {
+  String hostHeader = server.hostHeader();
+  return !(hostHeader.equals(WiFi.softAPIP().toString()) || hostHeader.equals("ErShubham.local"));
 }
 
 void controlMotor(int duration) {
@@ -283,27 +297,41 @@ void setup() {
   pinMode(motorPin, OUTPUT);  // Set motor pin as output
   digitalWrite(motorPin, LOW);  // Ensure motor is off
 
-  WiFi.softAP(ssid, password);  // Start Access Point
+  // Start Access Point
+  WiFi.softAP(ssid, password);
   Serial.println("Access Point started. IP address: ");
   Serial.println(WiFi.softAPIP());  // Print IP address
 
-  // Start the mDNS responder for shubham.local
+  // Start DNS server to catch all DNS requests and redirect to ESP8266
+  dnsServer.start(DNS_PORT, "*", WiFi.softAPIP());
+
+  // Start mDNS for hostname.local
   if (!MDNS.begin(hostname)) {
     Serial.println("Error setting up MDNS responder!");
   } else {
-    Serial.println("mDNS responder started. You can access the page at http://ErShubham.local");
+    Serial.println("mDNS responder started. Access at http://" + String(hostname) + ".local");
   }
 
+  // Handle captive portal detection for Android, iOS, etc.
+  server.on("/generate_204", handleCaptivePortal);  // For Android
+  server.on("/hotspot-detect.html", handleCaptivePortal);  // For iOS
+  server.on("/fwlink", handleCaptivePortal);  // For Windows (older versions)
+  
+  // Handle root requests and motor control
   server.on("/", handleRoot);  // Handle root URL requests
   server.on("/control", handleMotorControl);  // Handle motor control requests
   server.on("/stop", handleMotorStop);  // Handle motor stop requests (SOS)
-  server.begin();  // Start HTTP server
+
+  // Start HTTP server
+  server.begin();
+  Serial.println("HTTP server started");
 }
 
 void loop() {
-  server.handleClient();  // Handle HTTP requests
-  MDNS.update();  // Keep mDNS running
-  checkMotorStatus();     // Check motor status and turn off if needed
+  dnsServer.processNextRequest();  // Process captive portal DNS requests
+  server.handleClient();           // Handle HTTP requests
+  MDNS.update();                   // Keep mDNS running
+  checkMotorStatus();              // Check motor status and turn off if needed
 
   // Immediately stop motor if SOS button was pressed
   if (sosPressed && motorRunning) {
