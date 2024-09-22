@@ -48,9 +48,11 @@ const char index_html[] PROGMEM = R"rawliteral(
 }
 
 #timer-display {
-    font-size: 24px;
     margin-top: 20px;
+    font-family:inherit;
     animation: colorChange 4s infinite;
+    font-size: xx-large;
+    font-weight: bolder;
 }
 
 
@@ -152,13 +154,15 @@ const char index_html[] PROGMEM = R"rawliteral(
 
     <div id="control-panel">
         <h1>Water Tank Motor Control</h1>
-        <button class="mainbtn" id="btn-1sec" onclick="startTimer(0.0167)">Run for 1 second</button>
-        <button class="mainbtn" id="btn-5sec" onclick="startTimer(0.0833)">Run for 5 seconds</button>
-        <button class="mainbtn" id="btn-10sec" onclick="startTimer(0.1667)">Run for 10 seconds</button>
+      
+        <button class="mainbtn" id="btn-1sec" onclick="startTimer(1)">Run for 1 minutes</button>
         <button class="mainbtn" id="btn-5min" onclick="startTimer(5)">Run for 5 minutes</button>
         <button class="mainbtn" id="btn-10min" onclick="startTimer(10)">Run for 10 minutes</button>
-        <button class="mainbtn" id="btn-15min" onclick="startTimer(15)">Run for 15 minutes</button>
         <button class="mainbtn" id="btn-20min" onclick="startTimer(20)">Run for 20 minutes</button>
+        <button class="mainbtn" id="btn-30min" onclick="startTimer(30)">Run for 30 minutes</button>
+        <button class="mainbtn" id="btn-45min" onclick="startTimer(45)">Run for 45 minutes</button>
+        <button class="mainbtn" id="btn-5sec" onclick="startTimer(0.0833)">Run for 5 seconds</button>
+        <button class="mainbtn" id="btn-10sec" onclick="startTimer(0.1667)">Run for 10 seconds</button>
 
         <div id="timer-display"></div>
     </div>
@@ -171,7 +175,7 @@ const char index_html[] PROGMEM = R"rawliteral(
         </form>
         <div id="custom-time" style="display: none;"> <!-- Hide initially -->
             <label for="customTime">Enter time (minutes):</label>
-            <input type="number" id="customTime" min="1" max="30">
+            <input type="number" id="customTime" min="1" max="60">
             <button class="mainbtn" onclick="startCustomTimer()">Run Custom Time</button>
         </div>
 
@@ -183,15 +187,20 @@ const char index_html[] PROGMEM = R"rawliteral(
             let xhr = new XMLHttpRequest();
             xhr.open("GET", "/control?duration=" + (minutes * 60), true);
             xhr.send();
+              // Trigger text-to-speech announcement
+            announceMotorStart(minutes);
 
             let totalSeconds = Math.floor(minutes * 60);
-            document.getElementById("timer-display").innerHTML = "Motor running...";
+            document.getElementById("timer-display").innerHTML = "Motor Running...🚰";
             clearInterval(countdown); // Clear any previous timer
 
             countdown = setInterval(function () {
                 if (totalSeconds <= 0) {
                     clearInterval(countdown);
-                    document.getElementById("timer-display").innerHTML = "Motor stopped.";
+                    let msg = new SpeechSynthesisUtterance(`Motor stopped after ${minutes} minutes .!`);
+            window.speechSynthesis.speak(msg);
+                    document.getElementById("timer-display").innerHTML = "Motor Stopped.";
+
                 } else {
                     totalSeconds--;
                     let minutesLeft = Math.floor(totalSeconds / 60);
@@ -200,13 +209,19 @@ const char index_html[] PROGMEM = R"rawliteral(
                 }
             }, 1000);
         }
+        function announceMotorStart(minutes) {
+            let msg = new SpeechSynthesisUtterance(`Motor started for ${minutes} minutes`);
+            window.speechSynthesis.speak(msg);
+        }
 
         function stopMotor() {
             let xhr = new XMLHttpRequest();
             xhr.open("GET", "/stop", true);
             xhr.send();
             clearInterval(countdown); // Stop countdown immediately
-            document.getElementById("timer-display").innerHTML = "Motor stopped immediately!";
+            document.getElementById("timer-display").innerHTML = "Motor Stopped Immediately !";
+            let msg = new SpeechSynthesisUtterance(`Motor stopped immediately!`);
+            window.speechSynthesis.speak(msg);
         }
 
         // Custom time handling
@@ -253,10 +268,9 @@ void handleCaptivePortal() {
 }
 
 bool isCaptivePortalRequest() {
-  String hostHeader = server.hostHeader();
-  return !(hostHeader.equals(WiFi.softAPIP().toString()) || hostHeader.equals("ErShubham.local"));
+   String hostHeader = server.hostHeader();
+  return !(hostHeader.equals(WiFi.softAPIP().toString()));
 }
-
 void controlMotor(int duration) {
   motorStartTime = millis();
   motorDuration = duration * 1000;  // Convert to milliseconds
@@ -332,6 +346,10 @@ void loop() {
   server.handleClient();           // Handle HTTP requests
   MDNS.update();                   // Keep mDNS running
   checkMotorStatus();              // Check motor status and turn off if needed
+// Handle captive portal redirection
+  if (isCaptivePortalRequest()) {
+    handleCaptivePortal();
+  }
 
   // Immediately stop motor if SOS button was pressed
   if (sosPressed && motorRunning) {
