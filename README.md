@@ -10,6 +10,9 @@ This project enables wireless control of a water tank motor using the ESP8266 mi
 
 The system is designed for simplicity and reliability. Once connected to the ESP8266's Wi-Fi network, users can access the control panel from any web browser. The panel provides buttons to start the motor for durations ranging from seconds to several minutes, and a dedicated "STOP" button for emergency halts. The system also features a login section, allowing only authorized users to set a custom time duration for motor operation.
 
+
+![image](https://github.com/user-attachments/assets/6eb3edfc-a2b7-4c22-98a0-3a678d2ab089)
+
 ## Key Features
 
 - **Standalone Wi-Fi Network**: The ESP8266 creates its own access point, ensuring that users can connect directly without needing access to external routers or networks. This makes the system highly portable and usable in remote locations.
