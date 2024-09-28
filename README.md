@@ -4,181 +4,45 @@
 
 This project controls a water tank motor via an ESP8266 using a web interface. It provides a user-friendly UI for controlling the motor based on predefined durations, and allows manual stopping of the motor. It also includes captive portal functionality to make it easier for users to connect to the device's Wi-Fi network.
 
-## Code Breakdown
 
-### Libraries
-```cpp
-#include <ESP8266WiFi.h>       // Wi-Fi functionality
-#include <ESP8266WebServer.h>  // HTTP server functionality
-#include <ESP8266mDNS.h>       // mDNS functionality for local hostname
-#include <DNSServer.h>         // DNS server for captive portal
-```
-- ESP8266WiFi.h: Manages the Wi-Fi connection.
-- ESP8266WebServer.h: Handles HTTP requests and serves the web page.
-- ESP8266mDNS.h: Allows the device to be accessed using a local hostname (`hostname.local`).
-- DNSServer.h: Redirects all DNS queries to the ESP8266 to serve a captive portal, useful for devices like smartphones.
+# ESP8266-Based Water Tank Motor Control System
 
-### Pin Definitions and Web Server Setupconst int motorPin = 5;  // Motor control pin
-ESP8266WebServer server(80);  // Web server on port 80
-DNSServer dnsServer;          // DNS server for captive portal
-const byte DNS_PORT = 53;     // DNS port number
+This project enables wireless control of a water tank motor using the ESP8266 microcontroller. With a clean, intuitive web interface accessible via any device, users can set the motor to run for predefined periods, or stop it instantly. The system creates its own Wi-Fi network, allowing easy connection without needing access to existing networks. It also features a secure login mechanism for custom motor operation.
 
-- motorPin: GPIO pin connected to the relay or motor driver.
-- server(80): Creates an HTTP server on port 80.
-- dnsServer: DNS server used for captive portal.
-- DNS_PORT: Specifies the port for DNS (53 by default).
+## Overview
 
-### Wi-Fi and mDNS Configurationconst char* ssid = "ESP8266_WaterControl";  // Wi-Fi SSID
+The system is designed for simplicity and reliability. Once connected to the ESP8266's Wi-Fi network, users can access the control panel from any web browser. The panel provides buttons to start the motor for durations ranging from seconds to several minutes, and a dedicated "STOP" button for emergency halts. The system also features a login section, allowing only authorized users to set a custom time duration for motor operation.
 
-```
-const char* password = "12345678";          // Wi-Fi password
-const char* hostname = "ErShubham";         // mDNS hostname (e.g., `shubham.local`)
+## Key Features
 
-```
-- ssid: Name of the Wi-Fi network that the ESP8266 will create.
-- password: Password to join the network.
-- hostname: Local hostname for accessing the device (`hostname.local`).
+- **Standalone Wi-Fi Network**: The ESP8266 creates its own access point, ensuring that users can connect directly without needing access to external routers or networks. This makes the system highly portable and usable in remote locations.
+  
+- **Responsive Web Interface**: The control interface is optimized for both desktop and mobile devices, making it easy to operate the motor from anywhere within the Wi-Fi range. The interface features large, clearly labeled buttons for convenience.
 
-### HTML Web Interfaceconst char index_html[] PROGMEM = R"rawliteral(
+- **Predefined Time Options**: Users can choose from several preset options to run the motor for durations such as 1, 5, 10, or 30 minutes. This ensures quick and easy control for common usage scenarios.
 
-```
-  <html> <!-- Full HTML omitted for brevity -->
-</html>
-)rawliteral";
+- **Speech Notifications**: To enhance user feedback, the system provides real-time voice announcements through the browser when the motor starts and stops. This ensures the user is always informed of the motor's status without needing to constantly check the interface.
 
-```
-The HTML interface allows the user to:
-- Control the motor for different durations (1, 5, 10, 30 minutes, etc.).
-- Stop the motor immediately using a "STOP MOTOR" button.
-- Use custom time input after logging in.
+- **Emergency Stop Button**: For immediate control, a "STOP MOTOR" button is prominently featured on the interface, allowing users to halt the motor at any time, regardless of the current timer setting.
 
-### Main Control Logic
-#### setup()
+- **Custom Timer (Login Protected)**: For advanced users, the interface includes a custom timer feature, which becomes available after logging in with a secure password. This allows for flexible operation, giving users full control over how long the motor should run.
 
+## User Experience
 
-```
-void setup() {
-  Serial.begin(115200);  // Initialize serial communication
-  pinMode(motorPin, OUTPUT);  // Set motor pin as output
-  digitalWrite(motorPin, LOW);  // Ensure motor is off
+Upon connecting to the ESP8266’s network, users are automatically redirected to the control page. The page is visually appealing, with animated buttons that change color for a dynamic user experience. The control panel is centered on the screen, with all available options clearly visible. A timer countdown is displayed once the motor is running, providing users with precise feedback on how much time remains.
 
-  // Start Access Point
-  WiFi.softAP(ssid, password);
+An emergency "STOP" button is always accessible, ensuring that users can immediately halt the motor if necessary. Speech notifications keep users informed without requiring them to look at the screen.
 
-  // Start DNS server
-  dnsServer.start(DNS_PORT, "*", WiFi.softAPIP());
+For additional security, the custom timer feature is protected by a password. Once authenticated, users can input a custom time in minutes, allowing the motor to run for any duration between 1 and 60 minutes.
 
-  // Setup mDNS for local access
-  if (!MDNS.begin(hostname)) {
-    Serial.println("Error setting up MDNS responder!");
-  }
+## Security
 
-  // Handle HTTP requests
-  server.on("/", handleRoot);           // Serve the main page
-  server.on("/control", handleMotorControl);  // Handle motor control
-  server.on("/stop", handleMotorStop);  // Stop motor request
-  server.begin();  // Start HTTP server
-}
+To ensure secure operation, the custom timer functionality is protected by a login mechanism. Users must enter a predefined password to gain access to the custom timer settings, ensuring that only authorized personnel can make changes beyond the preset options.
 
-- WiFi.softAP(): Starts the ESP8266 as an Access Point (AP).
-- dnsServer.start(): Initializes the DNS server to redirect clients to the ESP8266 for captive portal.
-- MDNS.begin(): Starts mDNS so that the device can be accessed at hostname.local.
-- server.on(): Registers various HTTP request handlers for different routes.
+## Captive Portal and mDNS Support
 
-#### HTTP Request Handlersvoid handleRoot() {
-  server.send_P(200, "text/html", index_html);  // Serve the main HTML page
-}
+The system features captive portal functionality, which simplifies the process of connecting to the device's network. Once connected, users are automatically redirected to the control interface without needing to manually enter an IP address. Additionally, mDNS support allows users to access the system via a friendly local hostname (e.g., `shubham.local`), further streamlining the connection process.
 
-void handleMotorControl() {
-  if (server.hasArg("duration")) {
-    int duration = server.arg("duration").toInt();
-    controlMotor(duration);  // Start motor for specified duration
-    server.send(200, "text/plain", "Motor running for " + String(duration) + " seconds.");
-  } else {
-    server.send(400, "text/plain", "Invalid request");
-  }
-}
+## Technical Summary
 
-void handleMotorStop() {
-  stopMotor();  // Stop motor immediately
-  server.send(200, "text/plain", "Motor stopped immediately.");
-}
-
-```
-
-- handleRoot(): Serves the HTML web interface to the client.
-- handleMotorControl(): Starts the motor for the duration specified in the request.
-- handleMotorStop(): Immediately stops the motor.
-
-#### Motor Control Functions
-
-```
-void controlMotor(int duration) {
-  motorStartTime = millis();  // Store the start time
-  motorDuration = duration * 1000;  // Convert to milliseconds
-  motorRunning = true;
-  digitalWrite(motorPin, HIGH);  // Turn the motor ON
-}
-
-```
-
-```
-void stopMotor() {
-  digitalWrite(motorPin, LOW);  // Turn the motor OFF
-  motorRunning = false;
-}
-
-```
-```
-void checkMotorStatus() {
-  if (motorRunning && (millis() - motorStartTime >= motorDuration)) {
-    stopMotor();  // Stop motor when the duration has elapsed
-  }
-}
-
-```
-- controlMotor(): Turns the motor ON and stores the duration.
-- stopMotor(): Turns the motor OFF.
-- checkMotorStatus(): Checks if the motor has run for the specified duration, and stops it if needed.
-
-### Captive Portal Detection
-
-```
-void handleCaptivePortal() {
-  server.sendHeader("Location", String("http://") + WiFi.softAPIP().toString(), true);
-  server.send(302, "text/html", "");  // Redirect clients to the main page
-}
-
-```
-
-```
-bool isCaptivePortalRequest() {
-   String hostHeader = server.hostHeader();
-  return !(hostHeader.equals(WiFi.softAPIP().toString()));
-}
-
-```
-- handleCaptivePortal(): Redirects clients to the ESP8266's IP address if they try to visit a different URL.
-- isCaptivePortalRequest(): Checks if the client is trying to access a different site and redirects them.
-
-### Main Loop
-
-```
-void loop() {
-  dnsServer.processNextRequest();  // Handle DNS requests
-  server.handleClient();           // Handle HTTP requests
-  MDNS.update();                   // Update mDNS responder
-  checkMotorStatus();              // Check motor status
-}
-
-```
-- dnsServer.processNextRequest(): Processes captive portal DNS requests.
-- server.handleClient(): Handles incoming HTTP requests.
-- MDNS.update(): Keeps the mDNS service running.
-- checkMotorStatus(): Monitors and controls the motor based on the specified duration.
-
-## Features
-- Custom time input after login.
-- Colorful buttons with animation for better user experience.
-- Speech synthesis notifications when the motor starts and stops.
-`
+This project is built around the ESP8266 microcontroller, leveraging its built-in Wi-Fi capabilities to create a standalone access point and web server. The device serves an interactive web page, written in HTML and JavaScript, which allows users to control the motor. The system handles HTTP requests to start or stop the motor, and provides real-time feedback to users through both visual and auditory cues. With the use of speech synthesis, the system enhances user interaction by providing vocal status updates on motor operation.
