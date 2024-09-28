@@ -1,6 +1,6 @@
 
 
-# ESP8266 Water Tank Motor Control
+# <span style="color:red;">ESP8266-Based Water Tank Motor Control System</span>
 
 This project controls a water tank motor via an ESP8266 using a web interface. It provides a user-friendly UI for controlling the motor based on predefined durations, and allows manual stopping of the motor. It also includes captive portal functionality to make it easier for users to connect to the device's Wi-Fi network.
 
