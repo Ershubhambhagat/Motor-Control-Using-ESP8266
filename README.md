@@ -1,36 +1,48 @@
-# Water Tank Motor Control with ESP8266
 
-This project uses the ESP8266 microcontroller to create a Wi-Fi network and host a web page for controlling a water tank motor. The ESP8266 operates as a standalone access point, allowing you to connect to its network with your phone and access the control interface.
+$$\Huge \textcolor{red}{\text{ESP8266-Based Water Tank Motor Control System}}$$
 
-## Features
 
-- **Wi-Fi Access Point (AP)**: The ESP8266 creates its own Wi-Fi network named `ESP8266_WaterControl`, which you can connect to from your phone.
-- **Web Interface**: The ESP8266 serves a web page that allows you to control the water tank motor. The interface includes buttons to run the motor for predefined durations (5, 10, 15, or 20 minutes) and a login system for custom durations.
-- **Countdown Timer**: A visual countdown timer on the web page displays the remaining time while the motor is running.
-- **Login System**: A simple login form is included to allow authorized users to input custom durations for running the motor. Users can access this feature by entering a predefined username and password.
-- **Custom DNS**: The project uses a local DNS server, allowing you to access the control page via a custom domain name like `watercontrol.local` instead of using the IP address.
 
-## How It Works
 
-1. **Setup**: Power up the ESP8266. It will start its own Wi-Fi network with the SSID `ESP8266_WaterControl`. Connect your phone to this network.
-2. **Access the Web Page**: Open a browser on your phone and navigate to `watercontrol.local` to access the control page.
-3. **Control the Motor**: Use the buttons on the web page to start the motor for 5, 10, 15, or 20 minutes. The timer will display the remaining time, and the buttons will be disabled while the motor is running.
-4. **Authorized Access**: For running the motor for more than 20 minutes, log in using the provided username and password to access a field where you can enter custom durations.
+This project enables wireless control of a water tank motor using the ESP8266 microcontroller. With a clean, intuitive web interface accessible via any device, users can set the motor to run for predefined periods, or stop it instantly. The system creates its own Wi-Fi network, allowing easy connection without needing access to existing networks. It also features a secure login mechanism for custom motor operation.
 
-## Installation
+## Overview
 
-1. **Connect the ESP8266**: Ensure your ESP8266 is properly connected to the motor and power supply.
-2. **Upload Code**: Use the Arduino IDE to upload the provided code to your ESP8266. This code configures the ESP8266 as a Wi-Fi access point, serves the web page, and controls the motor.
-3. **Connect and Control**: Connect your phone to the ESP8266's Wi-Fi network and open the control page in a browser to start using the interface.
+The system is designed for simplicity and reliability. Once connected to the ESP8266's Wi-Fi network, users can access the control panel from any web browser. The panel provides buttons to start the motor for durations ranging from seconds to several minutes, and a dedicated "STOP" button for emergency halts. The system also features a login section, allowing only authorized users to set a custom time duration for motor operation.
 
-## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+![image](https://github.com/user-attachments/assets/6eb3edfc-a2b7-4c22-98a0-3a678d2ab089)
 
-## Acknowledgments
+## Key Features
 
-- Thanks to the Arduino and ESP8266 communities for their support and documentation.
+- **Standalone Wi-Fi Network**: The ESP8266 creates its own access point, ensuring that users can connect directly without needing access to external routers or networks. This makes the system highly portable and usable in remote locations.
+  
+- **Responsive Web Interface**: The control interface is optimized for both desktop and mobile devices, making it easy to operate the motor from anywhere within the Wi-Fi range. The interface features large, clearly labeled buttons for convenience.
 
-Feel free to modify and use this project as needed. If you have any questions or issues, please open an issue on this repository.
+- **Predefined Time Options**: Users can choose from several preset options to run the motor for durations such as 1, 5, 10, or 30 minutes. This ensures quick and easy control for common usage scenarios.
 
->http://192.168.4.1/control?duration=5
+- **Speech Notifications**: To enhance user feedback, the system provides real-time voice announcements through the browser when the motor starts and stops. This ensures the user is always informed of the motor's status without needing to constantly check the interface.
+
+- **Emergency Stop Button**: For immediate control, a "STOP MOTOR" button is prominently featured on the interface, allowing users to halt the motor at any time, regardless of the current timer setting.
+
+- **Custom Timer (Login Protected)**: For advanced users, the interface includes a custom timer feature, which becomes available after logging in with a secure password. This allows for flexible operation, giving users full control over how long the motor should run.
+
+## User Experience
+
+Upon connecting to the ESP8266’s network, users are automatically redirected to the control page. The page is visually appealing, with animated buttons that change color for a dynamic user experience. The control panel is centered on the screen, with all available options clearly visible. A timer countdown is displayed once the motor is running, providing users with precise feedback on how much time remains.
+
+An emergency "STOP" button is always accessible, ensuring that users can immediately halt the motor if necessary. Speech notifications keep users informed without requiring them to look at the screen.
+
+For additional security, the custom timer feature is protected by a password. Once authenticated, users can input a custom time in minutes, allowing the motor to run for any duration between 1 and 60 minutes.
+
+## Security
+
+To ensure secure operation, the custom timer functionality is protected by a login mechanism. Users must enter a predefined password to gain access to the custom timer settings, ensuring that only authorized personnel can make changes beyond the preset options.
+
+## Captive Portal and mDNS Support
+
+The system features captive portal functionality, which simplifies the process of connecting to the device's network. Once connected, users are automatically redirected to the control interface without needing to manually enter an IP address. Additionally, mDNS support allows users to access the system via a friendly local hostname (e.g., `shubham.local`), further streamlining the connection process.
+
+## Technical Summary
+
+This project is built around the ESP8266 microcontroller, leveraging its built-in Wi-Fi capabilities to create a standalone access point and web server. The device serves an interactive web page, written in HTML and JavaScript, which allows users to control the motor. The system handles HTTP requests to start or stop the motor, and provides real-time feedback to users through both visual and auditory cues. With the use of speech synthesis, the system enhances user interaction by providing vocal status updates on motor operation.
