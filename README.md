@@ -12,7 +12,7 @@ This project controls a water tank motor via an ESP8266 using a web interface. I
 #include <ESP8266WebServer.h>  // HTTP server functionality
 #include <ESP8266mDNS.h>       // mDNS functionality for local hostname
 #include <DNSServer.h>         // DNS server for captive portal
-
+```
 - ESP8266WiFi.h: Manages the Wi-Fi connection.
 - ESP8266WebServer.h: Handles HTTP requests and serves the web page.
 - ESP8266mDNS.h: Allows the device to be accessed using a local hostname (`hostname.local`).
@@ -29,18 +29,24 @@ const byte DNS_PORT = 53;     // DNS port number
 - DNS_PORT: Specifies the port for DNS (53 by default).
 
 ### Wi-Fi and mDNS Configurationconst char* ssid = "ESP8266_WaterControl";  // Wi-Fi SSID
+
+```
 const char* password = "12345678";          // Wi-Fi password
 const char* hostname = "ErShubham";         // mDNS hostname (e.g., `shubham.local`)
 
+```
 - ssid: Name of the Wi-Fi network that the ESP8266 will create.
 - password: Password to join the network.
 - hostname: Local hostname for accessing the device (`hostname.local`).
 
 ### HTML Web Interfaceconst char index_html[] PROGMEM = R"rawliteral(
+
+```
   <html> <!-- Full HTML omitted for brevity -->
 </html>
 )rawliteral";
 
+```
 The HTML interface allows the user to:
 - Control the motor for different durations (1, 5, 10, 30 minutes, etc.).
 - Stop the motor immediately using a "STOP MOTOR" button.
@@ -48,6 +54,9 @@ The HTML interface allows the user to:
 
 ### Main Control Logic
 #### setup()
+
+
+```
 void setup() {
   Serial.begin(115200);  // Initialize serial communication
   pinMode(motorPin, OUTPUT);  // Set motor pin as output
@@ -95,53 +104,74 @@ void handleMotorStop() {
   server.send(200, "text/plain", "Motor stopped immediately.");
 }
 
-Shubham, [28-09-2024 12:05 PM]
+```
+
 - handleRoot(): Serves the HTML web interface to the client.
 - handleMotorControl(): Starts the motor for the duration specified in the request.
 - handleMotorStop(): Immediately stops the motor.
 
-#### Motor Control Functionsvoid controlMotor(int duration) {
+#### Motor Control Functions
+
+```
+void controlMotor(int duration) {
   motorStartTime = millis();  // Store the start time
   motorDuration = duration * 1000;  // Convert to milliseconds
   motorRunning = true;
   digitalWrite(motorPin, HIGH);  // Turn the motor ON
 }
 
+```
+
+```
 void stopMotor() {
   digitalWrite(motorPin, LOW);  // Turn the motor OFF
   motorRunning = false;
 }
 
+```
+```
 void checkMotorStatus() {
   if (motorRunning && (millis() - motorStartTime >= motorDuration)) {
     stopMotor();  // Stop motor when the duration has elapsed
   }
 }
 
+```
 - controlMotor(): Turns the motor ON and stores the duration.
 - stopMotor(): Turns the motor OFF.
 - checkMotorStatus(): Checks if the motor has run for the specified duration, and stops it if needed.
 
-### Captive Portal Detectionvoid handleCaptivePortal() {
+### Captive Portal Detection
+
+```
+void handleCaptivePortal() {
   server.sendHeader("Location", String("http://") + WiFi.softAPIP().toString(), true);
   server.send(302, "text/html", "");  // Redirect clients to the main page
 }
 
+```
+
+```
 bool isCaptivePortalRequest() {
    String hostHeader = server.hostHeader();
   return !(hostHeader.equals(WiFi.softAPIP().toString()));
 }
 
+```
 - handleCaptivePortal(): Redirects clients to the ESP8266's IP address if they try to visit a different URL.
 - isCaptivePortalRequest(): Checks if the client is trying to access a different site and redirects them.
 
-### Main Loopvoid loop() {
+### Main Loop
+
+```
+void loop() {
   dnsServer.processNextRequest();  // Handle DNS requests
   server.handleClient();           // Handle HTTP requests
   MDNS.update();                   // Update mDNS responder
   checkMotorStatus();              // Check motor status
 }
 
+```
 - dnsServer.processNextRequest(): Processes captive portal DNS requests.
 - server.handleClient(): Handles incoming HTTP requests.
 - MDNS.update(): Keeps the mDNS service running.
@@ -152,5 +182,3 @@ bool isCaptivePortalRequest() {
 - Colorful buttons with animation for better user experience.
 - Speech synthesis notifications when the motor starts and stops.
 `
-
-This markdown document explains the purpose of each section of your code. You can upload this to GitHub for easy reference by others.
