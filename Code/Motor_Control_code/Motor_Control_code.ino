@@ -8,8 +8,8 @@ ESP8266WebServer server(80);  // Web server on port 80
 DNSServer dnsServer;          // DNS server for captive portal
 const byte DNS_PORT = 53;     // DNS port number
 
-const char* ssid = "ESP8266_WaterControl";  // Wi-Fi SSID
-const char* password = "12345678";          // Wi-Fi password
+const char* ssid = "Er Shubham Motor Control";  // Wi-Fi SSID
+const char* password = "123454321";          // Wi-Fi password
 const char* hostname = "ErShubham";      // mDNS hostname (e.g., shubham.local)
 
 const char index_html[] PROGMEM = R"rawliteral(
